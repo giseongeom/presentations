@@ -1,0 +1,81 @@
+﻿2014.04.26
+
+
+PS C:\> Get-WindowsFeature -Name Hyper*
+PS C:\> Install-WindowsFeature -Name Hyper-V -IncludeAllSubFeature -IncludeManagementTools
+PS C:\> Restart-Computer -Force
+
+PS C:\ISO-to-vhdx> .\Convert-WindowsImage.ps1 -VHDFormat VHDX -VHDPartitionStyle GPT -Edition ServerStandard -SizeBytes 146GB -SourcePath .\SW_DVD9_Windows_Svr_Std_and_DataCtr_2012_R2_64Bit_English_-3_MLF_X19-53588.ISO -VHDPath 'C:\vmstore\Hyper-V\Virtual Hard Disks\dc-01-win_svr_2012_r2_rtm_with_update_1_std_english_gen2.vhdx'
+
+PS C:\> New-VMSwitch -Name LAB-star.local -SwitchType Internal
+PS C:\> Get-VMSwitch
+
+PS C:\> New-VM -Name Star-DC-01 -MemoryStartupBytes 1GB -Generation 2 -SwitchName LAB-star.local -VHDPath 'C:\vmstore\Hyper-V\Virtual Hard Disks\dc-01-win_svr_2012_r2_rtm_with_update_1_std_english_gen2.vhdx'
+PS C:\> Get-VM 'Star-DC-01' | fl Name, Generation, MemoryStartup, ProcessorCount
+PS C:\> (Get-VM 'Star-DC-01').NetworkAdapters | fl Name, VMName, SwitchName, MacAddress, Status
+
+PS C:\> Get-VM
+PS C:\> Get-VM | start-vm
+
+PS C:\> Get-NetAdapter | fl
+PS C:\> New-NetIPAddress -IPAddress 192.168.10.10 -PrefixLength 24 -DefaultGateway 192.168.10.254 -InterfaceIndex 12
+PS C:\> Set-DnsClientServerAddress -InterfaceIndex 12 -ServerAddresses 192.168.10.10, 192.168.10.20
+
+C:\> cscript C:\Windows\System32\slmgr.vbs /ipk 12345-12345-12345-12345-12345
+C:\> cscript C:\Windows\System32\slmgr.vbs /ato
+
+C:\> tzutil /g
+C:\> tzutil /s "Korea Standard Time"
+
+C:\> hostname
+C:\> netdom renamecomputer %COMPUTERNAME% /newname:star-dc-01 /Reboot:60 /Force
+
+C:\> cscript C:\Windows\System32\SCregEdit.wsf /AR
+C:\> cscript C:\Windows\System32\SCregEdit.wsf /AR /v
+C:\> cscript C:\Windows\System32\SCregEdit.wsf /AR 0
+
+PS C:\> Enable-PSRemoting -SkipNetworkProfileCheck -Force
+
+PS C:\> Export-Credential -Path C:\temp\cred-localadmin -Credential Administrator
+PS C:\> Export-Credential -Path C:\temp\cred-domainadmin -Credential Administrator@star.local
+
+PS C:\> Set-Item WSMan:\localhost\Client\TrustedHosts -Value * -Force
+PS C:\> Get-Item WSMan:\localhost\Client\TrustedHosts
+
+PS C:\> $hosts = cat C:\temp\hostlist-IPaddr.txt
+PS C:\> $hosts
+192.168.10.10
+192.168.10.20
+192.168.10.101
+192.168.10.102
+PS C:\> $localadmin = Import-Credential -Path C:\temp\cred-localadmin
+PS C:\> Invoke-Command -ComputerName $hosts -ScriptBlock { hostname } -Credential $localadmin
+PS C:\> Get-NetTCPConnection -RemotePort 5985 | ft -AutoSize
+
+PS C:\> Enter-PSSession -ComputerName star-dc-01 -Credential $localadmin
+[star-dc-01]: PS C:\> Exit-PSSession
+
+PS C:\> Enter-PSSession -ComputerName star-dc-01 -Credential $localadmin
+[star-dc-01]: PS C:\> Install-windowsfeature -name AD-Domain-Services –IncludeManagementTools
+[star-dc-01]: PS C:\> Install-ADDSForest -DomainName star.local -DomainMode Win2012R2 -ForestMode Win2012R2
+
+PS C:\> $domainadmin = Import-Credential C:\temp\cred-domainadmin
+PS C:\> Enter-PSSession -ComputerName star-dc-01 -Credential $domainadmin
+[star-dc-01]: PS C:\> netdom query DC
+
+[star-dc-02]: PS C:\> Install-windowsfeature -name AD-Domain-Services –IncludeManagementTools
+[star-dc-02]: PS C:\> Install-ADDSDomainController -DomainName star.local -safemodeadministratorpassword (convertto-securestring "Password123!" -AsPlainText -Force) -Credential (Get-Credential)
+[star-dc-01]: PS C:\> netdom query DC
+
+PS C:\> Invoke-Command -ComputerName star-app-01, star-app-02 -Credential $localadmin -ScriptBlock { hostname ; netdom join $env:computername /Domain:star.local /UserD:Administrator /PasswordD:'Password123!' /reboot:1 }
+[star-dc-01]: PS C:\Users\Administrator\Documents> netdom query SERVER
+
+PS C:\> Invoke-Command -ScriptBlock { Add-WindowsFeature Telnet-Client } -ComputerName $hosts -Credential $domainadmin
+
+[star-dc-01]: PS C:\temp> Invoke-WebRequest -Uri http://dl.7-zip.org/7z925-x64.msi -OutFile 7z925-x64.msi
+[star-dc-01]: PS C:\temp> Unblock-File .\7z925-x64.msi
+[star-dc-01]: PS C:\temp> Start-Process ".\7z925-x64.msi" -ArgumentList "/quiet" -Wait
+[star-dc-01]: PS C:\temp> dir 'C:\Program Files\7-Zip'
+
+D:\> Setup.exe /qs /ACTION=Install /FEATURES=SQLEngine,Conn,SSMS,ADV_SSMS /INSTANCENAME=MSSQLSERVER /SQLSVCACCOUNT="NT Service\MSSQLSERVER" /AGTSVCACCOUNT="NT Service\SQLSERVERAGENT" /SQLSYSADMINACCOUNTS="STAR\Administrator" /TCPENABLED=1 /IAcceptSQLServerLicenseTerms
+

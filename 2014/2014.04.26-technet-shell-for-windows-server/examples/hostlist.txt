@@ -1,0 +1,4 @@
+star-dc-01
+star-dc-02
+star-app-01
+star-app-02

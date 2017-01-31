@@ -1,0 +1,66 @@
+﻿What is Shell? Wikipedia
+http://en.wikipedia.org/wiki/Shell_(computing)
+http://ko.wikipedia.org/wiki/셸
+
+console emulator
+cmder http://bliker.github.io/cmder/
+conemu-maximus5 https://code.google.com/p/conemu-maximus5/
+clink http://mridgers.github.io/clink/
+ckw http://d.hatena.ne.jp/hideden/20071115/1195229532
+
+To run scripts using the command-line-based script host (Cscript.exe)
+http://goo.gl/6UkQMV 
+
+To run scripts using the Windows-based script host (Wscript.exe)
+http://goo.gl/ThUyqx 
+
+MS12-020: Description of the security update for Terminal Server Denial of Service Vulnerability: March 13, 2012
+http://support.microsoft.com/kb/2667402/en-us 
+
+svchost.exe_TermService crashes after installation of KB2621440
+http://goo.gl/tzHO5b 
+
+DiskPart Command-Line Options
+http://technet.microsoft.com/en-us/library/cc766465(WS.10).aspx
+
+Installing SQL Server 2012 on Server Core 2012
+http://www.maxtblog.com/2012/07/installing-sql-server-2012-on-server-core-2012/
+
+Installing SQL Server 2012 on Windows Server Core ParT 3
+http://www.mssqltips.com/sqlservertip/2725/installing-sql-server-2012-on-windows-server-core-part-3/
+
+Quick Guide to the Virtual Switch in Hyper-V Server 2012
+http://www.altaro.com/hyper-v/virtual-switch-hyper-v-server-2012/
+
+Manage Hyper-V with PowerShell
+http://windowsitpro.com/hyper-v/manage-hyperv-powershell
+
+How to Change Your IP Address Using PowerShell
+http://www.howtogeek.com/112660/how-to-change-your-ip-address-using-powershell/
+
+PowerShell remoting between two workgroup machines
+http://blogs.msdn.com/b/wmi/archive/2009/07/24/powershell-remoting-between-two-workgroup-machines.aspx
+
+Install Active Directory Domain Services (Level 100)
+http://technet.microsoft.com/en-us/library/hh472162.aspx
+
+Install a Replica Windows Server 2012 Domain Controller in an Existing Domain (Level 200)
+http://technet.microsoft.com/en-us/library/jj574134.aspx
+
+Netdom query
+http://technet.microsoft.com/en-us/library/cc835089.aspx
+
+Invoke-WebRequest
+http://technet.microsoft.com/en-us/library/hh849901.aspx
+
+How to join a domain from the command line
+http://support.microsoft.com/kb/150493/en-us
+
+Set-VMMemory
+http://technet.microsoft.com/en-us/library/hh848572.aspx
+
+Mount-DiskImage
+http://technet.microsoft.com/en-us/library/hh848706.aspx
+
+GNU utilities for Win32
+http://unxutils.sourceforge.net/
