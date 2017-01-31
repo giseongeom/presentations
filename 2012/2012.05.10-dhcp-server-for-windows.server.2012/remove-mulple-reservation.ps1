@@ -1,0 +1,10 @@
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-11 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-12 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-13 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-14 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-15 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-16 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-17 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-18 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-19 -ComputerName star-dc-01
+Remove-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-1A -ComputerName star-dc-01

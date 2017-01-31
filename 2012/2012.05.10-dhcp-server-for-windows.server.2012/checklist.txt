@@ -1,0 +1,12 @@
+노트북 부팅
+로그온
+무선랜 --> Wibro 연결확인 (Wibro EGG 배터리는 미리 만땅충전해둔다)
+해상도 변경 (1280x800 또는 1024x768)
+VMware W/S 실행
+- star-dc-01 부팅
+- star-dc-02 부팅
+- 나머지 VM 부팅
+- VM들 Full Screen 모드로 설정
+
+- ppt 파일 오픈 (목록 창 제거)
+- zoomit 실행

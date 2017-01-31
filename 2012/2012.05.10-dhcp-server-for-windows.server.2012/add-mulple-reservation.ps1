@@ -1,0 +1,10 @@
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-11 -IPAddress 172.16.8.111 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-12 -IPAddress 172.16.8.112 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-13 -IPAddress 172.16.8.113 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-14 -IPAddress 172.16.8.114 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-15 -IPAddress 172.16.8.115 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-16 -IPAddress 172.16.8.116 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-17 -IPAddress 172.16.8.117 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-18 -IPAddress 172.16.8.118 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-19 -IPAddress 172.16.8.119 -ComputerName star-dc-01
+Add-DhcpServerv4Reservation -ScopeId 172.16.8.0 -ClientId 00-0C-29-A7-7B-1A -IPAddress 172.16.8.120 -ComputerName star-dc-01

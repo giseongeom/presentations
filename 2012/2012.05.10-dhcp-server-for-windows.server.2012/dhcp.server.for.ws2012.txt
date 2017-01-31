@@ -1,0 +1,145 @@
+
+DHCP on Windows Server 2012
+
+먼저 오늘 밥과 장소를 제공해주신 Microsoft Korea 관계자 분들에게 ...
+좋아요!!
+
+
+
+------------------ intro
+
+전 2000년부터 IT Pro. 일하고 있어요. Windows NT 4.0 SP6 과 처음 만남을 가졌습니다. 12년!!!
+
+왜 DHCP를 발표 주제로 선정했는지 궁금할 수 있습니다. 
+DHCP 환경은 저와 우리 회사에서는 굉장히 중요하기 때문입니다.
+DHCP가 제공하는 다음 3가지 장점때문에 우리 회사에서 아주 중요한 인프라가 되었습니다.
+잘 알거니까 세부 설명은 생략합니다.
+
+------------------ main
+
+아무튼 이제 WS2012 가 (베타지만) 나왔습니다.
+WS2012의 DHCP Server는 크게 3가지 바뀐 부분이 있는데, 전 모두 괜찮다고 생각합니다.
+
+DHCP Server Failover 아주 좋습니다. 일단 쵝오!!!
+Policy-based IP Assignment노가다를 줄이는 정책 구성이 가능하네요. 좀 더 유연해졌으면 좋겠습니다만.. 뭐.. 좋습니다.
+마지막으로 PowerShell 지원. 당연한 얘기지만 cmdlet 이 있는 제품의 관리가 100배 편하지요. 
+
+
+------------------- deep dive (DHCP Server Failover)
+
+그러면 각각의 기능에 대해서 좀 더 살펴보지요. 1번 DHCP Server Failover
+제가 왜 WS2012의 DHCP Server Failover 기능을 좋아할까요? 그건 단순함, 간결함 때문입니다.
+
+기존 WS2008 R2까지는 DHCP에 대한 2가지 고가용성 옵션이 있었는데.. 별로 심플하지 않거든요.
+
+
+The clustering deployment uses a single shared storage. 
+This makes the storage a single point of failure, and requires additional investment in redundancy for storage. 
+In addition, clustering involves relatively complex setup and maintenance.
+
+(요약하면) Failover Cluster는 Shared Storage가 SPOF 이슈가 되고 복잡함.
+
+
+Split scope deployment does not provide IP address continuity and is unusable in scenarios where the scope
+is already running at high utilization of address space, which is very common with
+Internet Protocol version 4 (IPv4).
+(요약하면) Split Scope의 경우, 100% 이중화가 아닌 일부 보장하고 
+
+
+
+데모를 통해서 구성 및 실제 동작하는 것을 간단하게 보여드릴께요.
+
+데모 환경은 다음과 같습니다. 
+(참고로 star 도메인은.. 제가 일관되게 사용하는 테스트랩 전용 도메인이고, 
+이 노트북은 WS2008 런치행사때 발표용으로 사용한 노트북입니다. 그때에 비해서 달라진 것은 OS가 Windows 7 / SSD로 업그레이드한 것 뿐입니다)
+
+[demo]
+
+
+(한계점)
+물론 WS2012의 DHCP Server Failover 기술이 장점만 있는 것은 아닙니다.
+IPv4 Scope만 지원하며 2대의 서버까지만 사용할 수 있습니다. 그렇지만, 이렇게까지 심플하게 구성하고 관리할 수 있다는 점은
+그만큼 칭찬하고 싶은 모습입니다. 역시 좋아요!
+
+
+------------------- Details on (Policy-based IP Assignment)
+
+다음은 Policy-based IP Assignment
+
+
+이건 굉장히 직관적인 기술입니다. 
+DHCP 환경은 기본적으로 내가 기억하기 힘들만큼 많은, 여러 종류의 디바이스들 관리합니다.
+그러다 보면 동일한 네트워크 내부에서도 GPO를 통해서 제어하듯이 정교하게 장치를 컨트롤하고 싶어지는 상황이 있습니다.
+
+
+데모를 통해서 보면 좀 더 이해가 빠른 것입니다.
+마찬가지로 앞서 사용한 테스트 환경을 그대로사용합니다.
+
+
+
+[demo]
+
+
+
+
+
+단순하죠? 실제로는 Vendor Class, User Claass, Mac 등등 5가지 기준을 적용해서 보다 복잡한 규칙을 적용할 수 있습니다.
+
+5가지 기준 + And / Or 조건 을 조합하면 이것저것 복잡한 규칙을 구현할 수 있습니다. 
+하지만 이런류의 정책은 다른 솔루션도 그렇지만 일단은 Keep It Simple
+
+
+
+
+
+
+
+
+
+------------------- Details on (Powershell support)
+
+
+
+PowerShell 지원은 예상한 것인데도 반갑네요.
+
+
+일단 103개의 cmdlet 이 있습니다. DHCPv4, DHCPv6 모두 지원하구요.
+
+
+
+바로 보여드리죠.
+
+
+[demo]
+
+* 수작업으로 dhcp reservation하는 모습을 보여줍니다.
+** add-mulple-reservation.ps1 이용해서 여러개의 Reservation을 
+** 앞에서 등록한 여러개의 예약 설정을 한 방에 삭제합니다.
+
+* export/import 과정을 보여줍니다.
+
+
+
+
+
+
+
+------------------- Summary and Action Items
+
+
+결론입니다.
+
+DHCP Server for WS2012 의 변화된 부분은 일단 무조건 좋습니다!
+좋은 건 따로 설명할 필요가 없고, 이제 해야 할 일을 정리해보죠.
+
+먼저 WS2012를 설치하고
+RSAT for DHCP 를 설치합니다.
+그러면 PowerShell 3.0 과 DHCP Server 모듈을이용해서 현재의 DHCP Server 관리를 좀 더 편하게 지내보구요.
+WS2012가 RTM이 되면 DHCP 서버를 교체하고 DHCP Server Fail-over를 사용해봅시다.
+
+
+
+
+
+
+

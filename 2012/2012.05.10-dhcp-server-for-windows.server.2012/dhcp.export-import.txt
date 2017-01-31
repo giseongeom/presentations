@@ -1,0 +1,8 @@
+
+
+Export-DhcpServer -File dhcp.backup.dmp -ComputerName star-dc-01
+
+Get-DhcpServerDatabase
+
+Import-DhcpServer -BackupPath C:\Windows\system32\dhcp\backup -File .\dhcp.backup.dmp
+
