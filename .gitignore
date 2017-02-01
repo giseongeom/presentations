@@ -43,5 +43,3 @@ $RECYCLE.BIN/
 # =========================
 .DS_Store
 
-# build script
-slide_build.cmd
