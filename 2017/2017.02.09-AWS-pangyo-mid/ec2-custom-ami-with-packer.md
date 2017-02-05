@@ -9,7 +9,7 @@
 
 * 이름: [엄기성(GiSeong Eom)](https://github.com/giseongeom)
 * 회사: [블루홀(Bluehole)](https://www.bluehole.net/)
-* 업무: Sysadmin, Infra. Operation (Since 2000.10 ~ )
+* 업무: Sysadmin, Infra Operation (2000.10 ~ )
 ???
 * 자기소개
 
@@ -20,6 +20,14 @@
 * 소속 부서 또는 고용주의 정책/의견과 무관함을 미리 밝혀 둡니다.
 ???
 * 면책 사항
+
+---
+## TOC
+
+- Custom AMI 사용 환경
+- packer 선택한 이유
+- 기본적인 사용 방법
+- 팁
 
 ---
 ## Why Custom AMI needed?
