@@ -5,32 +5,30 @@
 * 제목, 발표자, 발표일 기재
 
 ---
-## About me
+## 발표자 소개
 
-* 이름: [엄기성(GiSeong Eom)](https://github.com/giseongeom)
+* 이름: 엄기성(GiSeong Eom)
 * 회사: [블루홀(Bluehole)](https://www.bluehole.net/)
 * 업무: Sysadmin, Infra Operation (2000.10 ~ )
-???
-* 자기소개
 
 ---
 ## Disclaimer
 
 * 이 슬라이드의 내용은 전적으로 .red[**발표자 개인 의견**]입니다.
-* 소속 부서 또는 고용주의 정책/의견과 무관함을 미리 밝혀 둡니다.
+* 소속 부서, 고용주의 정책/의견과 무관함을 미리 밝혀 둡니다.
 ???
 * 면책 사항
 
 ---
-## TOC
+## 목차
 
-- Custom AMI 사용 환경
+- Custom AMI 사용 배경
 - packer 선택한 이유
-- 기본적인 사용 방법
+- packer 기초
 - 팁
 
 ---
-## Why Custom AMI needed?
+## Custom AMI
 
 * 어떤 환경이든 Customized OS 설치에 대한 욕구는 항상 존재함
 * 빠른 배포 
@@ -42,13 +40,14 @@
 * Thin Image vs Thick Image 언급
 
 ---
-## Creating an AMI
+## Custom AMI 생성 과정
 
-[AMI 생성 과정](https://goo.gl/MvNUXb)
+![custom-ami-7-step](./create-ami.png)
 
-![7-step](./create-ami.png)
-
-* 단순하게 표현하면 snapshot 뜨고, volume 생성하는 것에 불과함
+* 단순하게 표현하면
+  1. EC2 launch
+  2. snapshot 및 volume 생성
+  3. 반복....
 
 
 
