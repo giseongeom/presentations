@@ -275,7 +275,7 @@ example.json
 Packer validate
 * example.json 파일의 .red[**,**] 누락된 것을 확인
 
-![validate-error](./packer-validate-error.png)
+![validate-error](./packer-validate-error01.png)
 
 
 ---
