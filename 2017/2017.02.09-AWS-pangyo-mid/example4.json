@@ -1,0 +1,40 @@
+{
+  "variables": {
+    "aws_region": "{{env `AWS_DEFAULT_REGION`}}"
+  },
+
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "amzn-ami-hvm-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": ["amazon"],
+        "most_recent": true
+      },      
+      "instance_type": "{{user `aws_ec2_type`}}",
+      "ssh_username": "{{user `aws_ec2_user`}}",
+      "ami_name": "packer-{{timestamp}}",
+      "region": "{{user `aws_region`}}",
+      "ami_regions": [
+        "ap-northeast-1",
+        "ap-northeast-2"
+      ]
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum -y -q install cowsay lolcat",
+        "sudo cowsay `uname -a`"
+       ]
+    }    
+  ]
+}

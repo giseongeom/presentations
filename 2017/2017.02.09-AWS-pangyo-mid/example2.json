@@ -1,0 +1,32 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "amzn-ami-hvm-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": ["amazon"],
+        "most_recent": true
+      },      
+      "instance_type": "t2.nano",
+      "ssh_username": "ec2-user",
+      "ami_name": "packer-{{timestamp}}",
+      "region": "ap-northeast-2"
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum -y -q install cowsay lolcat",
+        "sudo cowsay `uname -a`"
+       ]
+    }    
+  ]
+}

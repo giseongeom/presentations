@@ -26,13 +26,9 @@
 
 - Custom AMI 생성
 
-- packer 소개
+- Packer 소개
 
 - 팁
-
-- 결론
-
-
 
 ---
 # Custom AMI 사용 배경
@@ -103,8 +99,11 @@
 * Amazon 제공 AMI로 EC2 instance 실행
 
 ```bash
-aws ec2 run-instances --image-id ami-dac312b4 \
-  --count 1 --instance-type t2.nano --key-name vagrant
+aws ec2 run-instances \
+  --image-id ami-dac312b4 \
+  --count 1 \
+  --instance-type t2.nano \
+  --key-name vagrant
 ```
 
 * 새로 실행된 EC2의 public IP주소를 확인, ssh 이용해서 패키지 설치
@@ -125,26 +124,35 @@ ssh -i ~/.ssh/vagrant ec2-user@52.79.174.90 \
 * AMI Image 생성
 
 ```bash
-aws ec2 create-image --instance-id i-0e97acd9de5283a9d
- --name "exampleAMI"
+aws ec2 create-image \
+  --instance-id i-0e97acd9de5283a9d
+  --name "exampleAMI"
 ```
 
 * 방금 생성한 AMI의 Image ID 확인
 
 ```bash
-aws ec2 describe-images --owners self
+aws ec2 describe-images \
+  --owners self
   --query 'Images[].[Name,ImageId,CreationDate]' 
 ```
+
+---
+## AWS CLI 이용한 AMI 빌드 (cont'd)
 
 * 확인된 Image ID 이용해서 새로운 EC2 instance 실행
 
 ```bash
-aws ec2 run-instances --image-id ami-47944429 \
- --count 1 --instance-type t2.nano --key-name vagrant
+aws ec2 run-instances \
+  --image-id ami-47944429 \
+  --count 1 \
+  --instance-type t2.nano \
+  --key-name vagrant
 
 ssh -i ~/.ssh/vagrant ec2-user@52.79.186.35 \
   "sudo cowsay \`uname -a\` | lolcat"
 ```
+
 
 ---
 ## AWS CLI 이용한 AMI 빌드 (cont'd)
@@ -174,7 +182,7 @@ ssh -i ~/.ssh/vagrant ec2-user@52.79.186.35 \
 
 * https://packer.io
 * 최신 버전: **0.12.2**
-* Hashicorp에서 개발, 공개한 오픈소스 도구
+* Hashicorp에서 개발, 공개한 오픈소스 도구 (go 언어로 개발)
 * VM image build에 최적화
 * 소스 `Template` = `Builder`+ `Provisioner` 로 구성
 
@@ -295,41 +303,275 @@ Packer build
 
 ![packer-build-01](./packer-build-02.png)
 
----
-### AMI build with Packer (cont'd)
-
+* 최종 산출물(build artifact): **ami-e922f387** 
 
 ---
-### Packer's pros and cons
+## AMI build with Packer (cont'd)
+
+주의사항
+
+* .json 파일 편집이 용이한 편집기를 사용할 것
+* provision 단계에서 한 번이라도 실패(return code)하면 build 실패
 
 
+???
+* build 단계가 늘어남에 따라 주의
 
+---
+# Tip
+---
+## source_ami 
+
+* 예제 소스에서는 `source_ami` 가 하드코딩되어 있다.
+* Amazon AMI는 계속 업데이트되므로 AMI ID도 변경된다. 
+
+```json
+{
+  "builders": [
+    {
+      ".... 중복코드 생략 ..."
+      "source_ami": "ami-dac312b4",
+    }
+  ],
+```
+
+.red[**유지보수 이슈 발생!!!**]
+
+???
+* 은근 귀찮음
+
+---
+## source_ami (cont'd)
+
+* `source_ami_filter` 를 사용한다.
+
+example2.json
+
+```json
+  "builders": [
+    {
+      ".... 중복코드 생략 ..."
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "amzn-ami-hvm-*",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": ["amazon"],
+        "most_recent": true
+      },      
+    }
+  ],
+```
+
+---
+## source_ami (cont'd)
+
+* build 하면 자동으로 이미지 검색되는 것 확인
+
+![](./packer-src-ami-filter-example01.png)
+
+
+???
+* 형제(?) product인 terraform의 data source 기능도 언급
 
 
 ---
-### AMI build with Packer - Advanced
+## variables
+
+* 예제 소스에서 `instance_type`, `ssh_username`, `region` 이 하드코딩.
+* Production 환경은 가변적이므로 사용 불가.
+
+```json
+  "builders": [
+    {
+      ".... 중복코드 생략 ..."
+      "instance_type": "t2.nano",
+      "ssh_username": "ec2-user",
+      "region": "ap-northeast-2"
+    }
+  ],
+```
+
+.red[**유지보수 이슈 발생!!!**]
+
+???
+* 하드코딩은 너/나/우리의 적.
+
+---
+## variables (cont'd)
+
+* Shell 환경변수, 사용자 변수(variables)를 적극 이용.
+
+example3.json
+
+```json
+{
+  "variables": {
+    "aws_region": "{{env `AWS_DEFAULT_REGION`}}"
+  },
+
+  "builders": [
+    {
+      ".... 중복코드 생략 ..."
+      "instance_type": "{{user `aws_ec2_type`}}",
+      "ssh_username": "{{user `aws_ec2_user`}}",
+      "region": "{{user `aws_region`}}"
+    }
+  ],
+}
+```
 
 
 ---
-### AMI build with Packer - Advanced (cont'd)
+## variables (cont'd)
 
+* 사용자 변수에 저장될 내용은 별도 파일로 분리
+
+packer-var.json
+
+```json
+{
+    "aws_ec2_type": "t2.nano",
+    "aws_ec2_user": "ec2-user"
+}
+```
 
 
 ---
-## AMI management
+## variables (cont'd)
+
+* packer build 도움말
+* `-var-file` 옵션을 사용할 수 있다.
+
+![packer-build-help](./packer-build-help-01.png)
+
+
+* packer validate & build
+
+```
+packer validate -var-file=packer-var.json example3.json
+packer build    -var-file=packer-var.json example3.json
+```
+
+---
+## ami_regions
+
+* 예제 소스에서는 단일 region에서만 사용할 것을 전제함.
+* 멀티 리젼 환경이 대부분인 요즘 문제가 된다.
+
+
+```json
+  "builders": [
+    {
+      ".... 중복코드 생략 ..."
+      "region": "{{user `aws_region`}}"
+    }
+  ],
+```
+
+.red[**유지보수 이슈 발생!!!**]
+
+???
+* AWS CLI로 쉽게 할 수 있긴 하다.
+
+---
+## ami_regions (cont'd)
+
+* ami_regions 설정을 이용해서 빌드 후, 다중 리젼에 복사
+
+example4.json
+
+```json
+{
+
+  "builders": [
+    {
+      ".... 중복코드 생략 ..."
+      "region": "{{user `aws_region`}}",
+      "ami_regions": [
+        "ap-northeast-1",
+        "ap-northeast-2"
+      ]
+    }
+  ],
+}
+```
+
+
+---
+## ami_regions (cont'd)
+
+* build 완료된 다음, 이미지 복사 진행되는 것을 확인
+
+![packer-ami-cp-multi-regions](./packer-build-multi-regions.png)
+
+
+---
+## 미사용 AMI 삭제
+
+* AMI ID에 연결된 snapshot Id를 먼저 확인
+
+```bash
+aws ec2 describe-images \
+ --image-ids ami-5c9a4a32 \
+ --query 'Images[].BlockDeviceMappings[].Ebs[].SnapshotId'\
+ --output text
+
+snap-0b0f0d168161b67aa
+```
+
+* AMI를 de-register
+
+```bash
+aws ec2 deregister-image --image-id ami-5c9a4a32
+```
+
+* Snapshot 삭제
+
+```bash
+aws ec2 delete-snapshot --snapshot-id snap-0b0f0d168161b67aa
+```
+
+---
+## 미사용 AMI 삭제 (cont'd)
+
+* AWS CLI 호출하는 [bash functions](https://github.com/giseongeom/aws-toolkit/blob/master/linux/.bash_functions_aws) 사용
 
 ![ami-list-and-delete.png](./ami-list-and-delete.png)
+
+
+---
+## Amazon AMI Update Notification
+
+Amazon Linux AMI Notifications (2016.09.1 Release 부터 지원됨)
+
+`arn:aws:sns:us-east-1:137112412989:amazon-linux-ami-updates`
+
+Amazon Windows AMI Notifications 
+
+`arn:aws:sns:us-east-1:801119661308:ec2-windows-ami-update`
+
+
+---
+# Any Questions?
+
+.footnote[발표자료/예제소스 [다운로드](https://github.com/giseongeom/presentations/tree/master/2017/2017.02.09-AWS-pangyo-mid) ]
+
 
 ---
 ## References
 
 * Packer
-  * [Packer](https://www.packer.io/)
-  * [`Packer build example.json` (Youtube)](https://goo.gl/SH74g1)
+  * [PACKER](https://www.packer.io/)
+  * [PACKER TERMINOLOGY](https://www.packer.io/docs/basics/terminology.html)
 * Hashicorp
   * [DevOps Defined](https://www.hashicorp.com/devops.html#package)
 * AWS Docs
   * [Creating an Amazon EBS-Backed Linux AMI](https://goo.gl/F7tEGV)
+  * [Subscribing to Windows AMI Notifications](http://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/windows-ami-version-history.html#subscribe-notifications)
+  * [Amazon Linux AMI 2016.09 Release Notes](https://aws.amazon.com/amazon-linux-ami/2016.09-release-notes/)
 
----
-# Any Questions ?
+
