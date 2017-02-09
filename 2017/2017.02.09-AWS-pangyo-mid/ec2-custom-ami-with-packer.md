@@ -564,6 +564,7 @@ Amazon Windows AMI Notifications
 ---
 ## References
 
+* [패커(Packer)로 도커(Docker) 이미지 빌드 및 AMI 자동 빌드 시스템 구축](http://blog.remotty.com/blog/2015/09/30/paekeopackerro-dokeodocker-imiji-bildeu-mic-ami-jadong-bildeu-siseutem-gucug/)
 * Packer
   * [PACKER](https://www.packer.io/)
   * [PACKER TERMINOLOGY](https://www.packer.io/docs/basics/terminology.html)
@@ -573,5 +574,4 @@ Amazon Windows AMI Notifications
   * [Creating an Amazon EBS-Backed Linux AMI](https://goo.gl/F7tEGV)
   * [Subscribing to Windows AMI Notifications](http://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/windows-ami-version-history.html#subscribe-notifications)
   * [Amazon Linux AMI 2016.09 Release Notes](https://aws.amazon.com/amazon-linux-ami/2016.09-release-notes/)
-
 
