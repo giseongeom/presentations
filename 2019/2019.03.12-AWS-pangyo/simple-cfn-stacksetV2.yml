@@ -1,0 +1,10 @@
+Resources:
+  MyApplication:
+    Type: "AWS::CodeDeploy::Application"
+    Properties:
+      ApplicationName: !Sub "${AWS::StackName}-${AWS::AccountId}-${AWS::Region}"
+
+  MyCodeDeploybucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "stackset-demo-for-codedeploybucket-${AWS::AccountId}-${AWS::Region}"

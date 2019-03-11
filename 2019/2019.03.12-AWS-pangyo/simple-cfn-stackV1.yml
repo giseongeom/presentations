@@ -1,0 +1,5 @@
+Resources:
+  MyApplication:
+    Type: "AWS::CodeDeploy::Application"
+    Properties:
+      ApplicationName: !Sub "${AWS::StackName}-${AWS::AccountId}-${AWS::Region}"
