@@ -33,7 +33,7 @@ aws cloudformation create-stack-set --stack-set-name singleAWSAccount-Stackset-D
 # cfn stackset instance 생성
 aws cloudformation create-stack-instances --stack-set-name singleAWSAccount-Stackset-Demo `
   --accounts $StackSetAdminAccountId `
-  --regions "us-east-1" `
+  --regions us-east-1 `
   --operation-preferences FailureToleranceCount=0,MaxConcurrentCount=4 `
   --profile demo --region us-east-1
 
