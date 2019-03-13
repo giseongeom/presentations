@@ -3,7 +3,8 @@
 # us-east-1
 
 # AWSCloudFormationStackSetAdministrationRole 생성
-aws cloudformation create-stack --stack-name enable-cfn-stackset-admin --template-body file://AWSCloudFormationStackSetAdministrationRole.yml  `
+aws cloudformation create-stack --stack-name enable-cfn-stackset-admin `
+  --template-body file://AWSCloudFormationStackSetAdministrationRole.yml  `
   --capabilities CAPABILITY_NAMED_IAM `
   --profile demoadmin --region us-east-1
 
@@ -16,7 +17,8 @@ aws cloudformation create-stack --stack-name enable-cfn-stackset-admin --templat
 $StackSetAdminAccountId = (Get-STSCallerIdentity -ProfileName demoadmin).Account
 
 # AWSCloudFormationStackSetExecutionRole 생성
-aws cloudformation create-stack --stack-name enable-cfn-stackset-target --template-body file://AWSCloudFormationStackSetExecutionRole.yml  `
+aws cloudformation create-stack --stack-name enable-cfn-stackset-target `
+  --template-body file://AWSCloudFormationStackSetExecutionRole.yml  `
   --capabilities CAPABILITY_NAMED_IAM `
   --parameters ParameterKey=AdministratorAccountId,ParameterValue=$StackSetAdminAccountId `
   --profile demotarget --region us-east-1
