@@ -1,0 +1,243 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: AwsTools4PsCoreLab
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: c5.2xlarge
+
+  Vpc:
+    Type: String
+    Default: vpc-b01433d4
+
+  Subnet:
+    Type: String
+    Default: subnet-1432c15d
+
+  # Shoud be CIDR format (/32)
+  DemoLocationIp:
+    Type: String
+
+  #Ec2 ImageId (2019/09/01 - Tokyo)
+  # Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-0c3fd0f5d33134a76 (64-bit x86)
+  # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type - ami-0eeb679d57500a06c (64-bit x86)
+  # Microsoft Windows Server 2019 Core - ami-07a622001172c6c2d
+  AmazonLinux2ImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0c3fd0f5d33134a76
+
+  UbuntuServerImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0eeb679d57500a06c
+
+  WindowsServerImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-07a622001172c6c2d
+
+
+
+
+Resources:
+  EC2DeployInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2DeployRole
+      InstanceProfileName: !Sub "lab-ec2-instant-profile-20190903-${AWS::Region}"
+
+  EC2DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "lab-ec2-deploy-role-20190903-${AWS::Region}"
+      AssumeRolePolicyDocument: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      Policies:
+        - PolicyName: !Sub "lab-ec2-deploy-role-policy-${AWS::Region}"
+          PolicyDocument: |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                      "ec2:*",
+                      "cloudformation:*",
+                      "s3:*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+
+  DemoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security group for Demo EC2 Hosts"
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        # DemoLocation0
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Ref DemoLocationIp
+        # Office
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 103.0.0.0/8
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: 103.0.0.0/8
+        # Home
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 65535
+          CidrIp: 1.228.0.0/16
+      Tags:
+        - Key: Env
+          Value: Lab
+        - Key: Product
+          Value: AWSKRUG
+
+  AmznLinux2EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref AmznLinux2VM
+
+  Ubuntu1804EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref Ubuntu1804VM
+
+  WS2019EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref WS2019VM
+
+
+  AmznLinux2VM:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Ref Subnet
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref EC2DeployInstanceProfile
+      ImageId: !Ref AmazonLinux2ImageId
+      KeyName: vagrant
+      SecurityGroupIds:
+        - !Ref DemoSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 300
+            VolumeType: gp2
+      UserData:
+        Fn::Base64: |
+          #cloud-config
+          users:
+            - default
+            - name: demouser
+              groups: wheel
+              shell: /bin/bash
+              sudo: ['ALL=(ALL) NOPASSWD:ALL']
+              ssh-authorized-keys:
+                - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant
+          runcmd:
+            - curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
+            - sudo yum install -y powershell
+            - sudo pwsh -Command 'Install-Module -Name AWSPowerShell.NetCore -Scope AllUsers -Force -ErrorAction SilentlyContinue -Verbose'
+      Tags:
+        - Key: Name
+          Value: AmazonLinux2
+        - Key: Env
+          Value: Lab
+        - Key: Product
+          Value: AWSKRUG
+
+  Ubuntu1804VM:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Ref Subnet
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref EC2DeployInstanceProfile
+      ImageId: !Ref UbuntuServerImageId
+      KeyName: vagrant
+      SecurityGroupIds:
+        - !Ref DemoSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 300
+            VolumeType: gp2
+      UserData:
+        Fn::Base64: |
+          #cloud-config
+          users:
+            - default
+            - name: demouser
+              groups: wheel
+              shell: /bin/bash
+              sudo: ['ALL=(ALL) NOPASSWD:ALL']
+              ssh-authorized-keys:
+                - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant
+          runcmd:
+            # Install Powershell Core (Stable)
+            - cd /tmp ; wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+            - sudo dpkg -i packages-microsoft-prod.deb
+            - sudo apt-get -y update
+            - sudo add-apt-repository -y universe
+            - sudo apt-get install -y powershell
+            - sudo pwsh -Command 'Install-Module -Name AWSPowerShell.NetCore -Scope AllUsers -Force -ErrorAction SilentlyContinue -Verbose'
+      Tags:
+        - Key: Name
+          Value: Ubuntu1804
+        - Key: Env
+          Value: Lab
+        - Key: Product
+          Value: AWSKRUG
+
+  WS2019VM:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Ref Subnet
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref EC2DeployInstanceProfile
+      ImageId: !Ref WindowsServerImageId
+      KeyName: vagrant
+      SecurityGroupIds:
+        - !Ref DemoSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 300
+            VolumeType: gp2
+      UserData:
+        Fn::Base64: |
+          <powerShell>
+          Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+          choco install -y powershell-core
+          choco install -y ntop.portable tcping
+          & 'C:\Program Files\PowerShell\6\pwsh.exe' -ExecutionPolicy ByPass -Command 'Install-Module -Name AWSPowerShell.NetCore -Scope AllUsers -Force -ErrorAction SilentlyContinue -Verbose'
+          </powerShell>
+      Tags:
+        - Key: Name
+          Value: WS2019
+        - Key: Env
+          Value: Lab
+        - Key: Product
+          Value: AWSKRUG
